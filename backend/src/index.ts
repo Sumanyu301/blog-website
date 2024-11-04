@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
-import { decode, sign, verify } from 'hono/jwt'
+import { sign } from 'hono/jwt'
 
 
 const app = new Hono<{
@@ -25,18 +25,19 @@ app.post('/api/v1/signup', async (c) => {
 				password: body.password
 			}
 		});
-		const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
-		return c.json({ jwt });
+		const token = await sign({ id: user.id }, c.env.JWT_SECRET);
+		return c.json({ jwt:token });
 	} catch(e) {
+		console.error('Signup error:', e);
 		c.status(403);
-		return c.json({ error: "error while signing up" });
+		return c.json({ error: "error while signing up try with a different email" });
 	}
 })
 
 
 app.post('/api/v1/signin', async (c) => {
 	const prisma = new PrismaClient({
-		datasourceUrl: c.env?.DATABASE_URL	,
+		datasourceUrl: c.env?.DATABASE_URL,
 	}).$extends(withAccelerate());
 
 	const body = await c.req.json();
