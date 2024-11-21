@@ -1,18 +1,20 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { signupInput } from "@uynamus/medium-common";
-
+import axios from "axios";
+import { BACKEND_URL } from "../config";
 export const SignUp = () => {
   const [postInputs, setPostInputs] = useState<signupInput>({
     email: "",
     name: "",
     password: "",
   });
+  const Navigate = useNavigate();
 
-//   If the user types "john@example.com" into the email field:
-// The name would be "email".
-// The value would be "john@example.com".
-// The postInputs state updates to include { email: "john@example.com", name: "", password: "" }.
+  //   If the user types "john@example.com" into the email field:
+  // The name would be "email".
+  // The value would be "john@example.com".
+  // The postInputs state updates to include { email: "john@example.com", name: "", password: "" }.
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -21,6 +23,20 @@ export const SignUp = () => {
       [name]: value,
     }));
   };
+
+  async function handleSignUp() {
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/v1/user/signup`,
+        postInputs
+      );
+      const jwt = response.data.jwt;
+      localStorage.setItem("token", jwt);
+      Navigate("/blogs");
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <>
@@ -63,12 +79,16 @@ export const SignUp = () => {
               <input
                 type="password"
                 name="password"
+                placeholder="••••••••"
                 className="mt-2 h-10 border border-gray-300 rounded shadow w-full p-4"
                 onChange={handleInputChange}
                 value={postInputs.password}
               />
             </div>
-            <button className="bg-black hover:bg-gray-700 text-white font-semibold py-2 px-4 border border-gray-400 rounded shadow mt-4 w-full">
+            <button
+              onClick={handleSignUp}
+              className="bg-black hover:bg-gray-700 text-white font-semibold py-2 px-4 border border-gray-400 rounded shadow mt-4 w-full"
+            >
               Sign Up
             </button>
           </div>

@@ -1,12 +1,29 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { signinInput } from "@uynamus/medium-common";
+import axios from "axios";
+import { BACKEND_URL } from "../config";
 
 export const SignIn = () => {
   const [postInputs, setPostInputs] = useState<signinInput>({
     email: "",
     password: "",
   });
+  const Navigate = useNavigate();
+
+  async function handleSignIn() {
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/v1/user/signin`,
+        postInputs
+      );
+      const jwt = response.data.jwt;
+      localStorage.setItem("token", jwt);
+      Navigate("/blogs");
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   //   If the user types "john@example.com" into the email field:
   // The name would be "email".
@@ -51,12 +68,16 @@ export const SignIn = () => {
               <input
                 type="password"
                 name="password"
+                placeholder="••••••••"
                 className="mt-2 h-10 border border-gray-300 rounded shadow w-full p-4"
                 onChange={handleInputChange}
                 value={postInputs.password}
               />
             </div>
-            <button className="bg-black hover:bg-gray-700 text-white font-semibold py-2 px-4 border border-gray-400 rounded shadow mt-4 w-full">
+            <button
+              onClick={handleSignIn}
+              className="bg-black hover:bg-gray-700 text-white font-semibold py-2 px-4 border border-gray-400 rounded shadow mt-4 w-full"
+            >
               Login
             </button>
           </div>
