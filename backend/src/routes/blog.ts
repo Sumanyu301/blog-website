@@ -15,22 +15,33 @@ export const blogRouter = new Hono<
 }>();
 
 blogRouter.use('/*', async (c, next) => {
-	const jwt = c.req.header('Authorization') ||"";
-	if (!jwt) {
-		c.status(401);
-		return c.json({ error: "unauthorized" });
+	const jwt = c.req.header('Authorization') || "";
+	
+	// Check if token exists and is properly formatted
+	if (!jwt.startsWith("Bearer ")) {
+	  c.status(401);
+	  return c.json({ error: "unauthorized" });
 	}
+	
 	const token = jwt.split(' ')[1];
-	const payload = await verify(token, c.env.JWT_SECRET);
-	if (!payload) {
-		c.status(401);
-		return c.json({ error: "unauthorized" });
-	}else
-    {
-		c.set('userId', payload.id as string);
-        await next()
-    }
-})
+  
+	// Verify the token
+	let payload;
+	try {
+	  payload = await verify(token, c.env.JWT_SECRET);
+	} catch (err) {
+	  console.error("JWT verification failed:", err);
+	  c.status(401);
+	  return c.json({ error: "unauthorized" });
+	}
+  
+	// Attach userId to the request context
+	c.set('userId', payload.id as string);
+  
+	// Proceed to the next middleware or route handler
+	await next();
+  });
+  
 
 blogRouter.post('/', async (c) => {
 	const userId = c.get('userId');
@@ -64,27 +75,25 @@ blogRouter.post('/', async (c) => {
 //we need pagination here.
 blogRouter.get('/bulk', async (c) => {
     const prisma = new PrismaClient({
-        datasourceUrl: c.env?.DATABASE_URL,
-    }).$extends(withAccelerate());
-
-    try {
-        const posts = await prisma.post.findMany();
-        
-        // Check if posts are found
-        if (!posts || posts.length === 0) {
-            return c.json({ message: "No posts found" }, 404); // Return a 404 if no posts exist
+        datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
+    const blogs = await prisma.post.findMany({
+        select: {
+            content: true,
+            title: true,
+            id: true,
+            author: {
+                select: {
+                    name: true
+                }
+            }
         }
+    });
 
-        return c.json(posts);
-    } catch (error) {
-        console.error("Error fetching posts:", error);
-        c.status(500); // Internal server error
-        return c.json({
-            message: "Error fetching posts",
-             // Include error message for debugging
-        });
-    }
-});
+    return c.json({
+        blogs
+    })
+})
 
 
 blogRouter.get('/:id', async (c) => {
