@@ -3,6 +3,7 @@ import { SignUp } from "./SignUp";
 import { Blog } from "./Blog";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Blogs } from "./Blogs";
+import { Publish } from "./Publish";
 
 export const Body = () => {
     return (
@@ -12,7 +13,7 @@ export const Body = () => {
                 <Route path="/" element={<SignUp></SignUp>}/>
                 <Route path="/blog/:id" element={<Blog></Blog>}/>
                 <Route path="/blogs" element={<Blogs></Blogs>}/>
-                <Route path="/publish" element={<publish></publish>}/>
+                <Route path="/publish" element={<Publish></Publish>}/>
             </Routes>
         </BrowserRouter>
     );
