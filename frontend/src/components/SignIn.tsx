@@ -48,7 +48,7 @@ export const SignIn = () => {
             </div>
             <div className="text-gray-500 text-lg mt-2 text-center">
               <span>Dont have an account?</span>
-              <Link to={"/signup"} className="underline ml-2">
+              <Link to={"/"} className="underline ml-2">
                 SignUp
               </Link>
             </div>
