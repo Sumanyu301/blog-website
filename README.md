@@ -10,7 +10,7 @@ The backend is hosted at: [Backend URL](https://backend.i-try-thats-me-301.worke
 
 - Node.js
 - Express
-- MongoDB
+- Prisma
 - JWT for authentication
 
 ### Endpoints
