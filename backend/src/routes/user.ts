@@ -40,7 +40,6 @@ userRouter.post('/signup', async (c) => {
 		return c.json({ jwt:token });
 	} catch(e) {
 		c.status(403);
-		console.log(e);
 		return c.json({ error: "error while signing up try with a different email" });
 	}
 })
