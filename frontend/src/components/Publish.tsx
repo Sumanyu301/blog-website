@@ -56,6 +56,10 @@ export const Publish = () => {
               const response = await axios.post(`${BACKEND_URL}/api/v1/blog`, {
                 title,
                 content,
+              },{
+                headers:{
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
               });
               navigate(`/blog/${response.data.id}`)
             }}
